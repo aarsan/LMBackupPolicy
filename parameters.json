@@ -1,6 +1,6 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
+    "contentVersion": "2.0.0.0",
     "parameters": {
         "vaultSubscriptionID": {
             "value": "edfeee88-1f3d-413a-b4d6-884d1f694077"
@@ -30,7 +30,7 @@
                 "hourlySchedule": {
                     "interval": 4,
                     "scheduleWindowStartTime": "2025-05-12T08:00:00.000Z",
-                    "scheduleWindowDuration": 24
+                    "scheduleWindowDuration": 20
                 },
                 "dailySchedule": null,
                 "weeklySchedule": null
