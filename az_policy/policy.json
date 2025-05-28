@@ -1,5 +1,95 @@
 {
-  "mode": "Indexed",
+  "mode": "Indexed",  
+  "parameters": {
+    "vaultResourceGroupName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Resource Group Name",
+        "description": "Resource Group containing the Recovery Services Vaults"
+      },
+      "defaultValue": "LibertyMutualDemo"
+    },
+    "dailyVaultName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Daily Vault Name",
+        "description": "Name of the Recovery Services Vault for daily backups"
+      },
+      "defaultValue": "lm-daily"
+    },
+    "hourlyVaultName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Hourly Vault Name",
+        "description": "Name of the Recovery Services Vault for hourly backups"
+      },
+      "defaultValue": "lm-hourly"
+    },
+    "backupPolicyName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Backup Policy Name",
+        "description": "Name of the backup policy to apply"
+      },
+      "defaultValue": "EnhancedPolicy"
+    },
+    "backupTagName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Backup Tag Name",
+        "description": "Name of the tag to use for determining backup schedule"
+      },
+      "defaultValue": "backup-policy"
+    },
+    "dailyTagValue": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Daily Backup Tag Value",
+        "description": "Value of the backup tag for daily backups"
+      },
+      "defaultValue": "daily"
+    },
+    "hourlyTagValue": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Hourly Backup Tag Value",
+        "description": "Value of the backup tag for hourly backups"
+      },
+      "defaultValue": "hourly"
+    },
+    "inclusionTagName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Inclusion Tag Name",
+        "description": "Name of the tag to use for including VMs in the scope of this policy. This should be used along with the Inclusion Tag Value parameter. Learn more at https://aka.ms/AppCentricVMBackupPolicy."
+      },
+      "defaultValue": "backup-policy-name"
+    },
+    "inclusionTagValue": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Inclusion Tag Values",
+        "description": "Value of the tag to use for including VMs in the scope of this policy (in case of multiple values, use a comma-separated list). This should be used along with the Inclusion Tag Name parameter. Learn more at https://aka.ms/AppCentricVMBackupPolicy."
+      },
+      "defaultValue": ["EnhancedPolicy"]
+    },
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "auditIfNotExists",
+        "AuditIfNotExists",
+        "deployIfNotExists",
+        "DeployIfNotExists",
+        "disabled",
+        "Disabled"
+      ],
+      "defaultValue": "DeployIfNotExists"
+    }
+  },
   "policyRule": {
     "if": {
       "allOf": [
@@ -8,32 +98,12 @@
           "equals": "Microsoft.Compute/virtualMachines"
         },
         {
-          "field": "id",
-          "notContains": "/resourceGroups/databricks-rg-"
+          "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.managedDisk",
+          "exists": "true"
         },
         {
-          "field": "Microsoft.Compute/imagePublisher",
-          "notEquals": "azureopenshift"
-        },
-        {
-          "field": "Microsoft.Compute/imagePublisher",
-          "notEquals": "AzureDatabricks"
-        },
-        {
-          "anyOf": [
-            {
-              "field": "[concat('tags[', parameters('inclusionTagName'), ']')]",
-              "in": "[parameters('inclusionTagValue')]"
-            },
-            {
-              "value": "[empty(parameters('inclusionTagValue'))]",
-              "equals": "true"
-            },
-            {
-              "value": "[empty(parameters('inclusionTagName'))]",
-              "equals": "true"
-            }
-          ]
+          "field": "[concat('tags[', parameters('backupTagName'), ']')]",
+          "exists": "true"
         },
         {
           "anyOf": [
@@ -564,40 +634,5 @@
           }
         }
       }
-    }
-  },
-  "parameters": {
-    "inclusionTagName": {
-      "type": "String",
-      "metadata": {
-        "displayName": "Inclusion Tag Name",
-        "description": "Name of the tag to use for including VMs in the scope of this policy. This should be used along with the Inclusion Tag Value parameter. Learn more at https://aka.ms/AppCentricVMBackupPolicy."
-      },
-      "defaultValue": "backup-policy-name"
-    },
-    "inclusionTagValue": {
-      "type": "Array",
-      "metadata": {
-        "displayName": "Inclusion Tag Values",
-        "description": "Value of the tag to use for including VMs in the scope of this policy (in case of multiple values, use a comma-separated list). This should be used along with the Inclusion Tag Name parameter. Learn more at https://aka.ms/AppCentricVMBackupPolicy."
-      },
-      "defaultValue": ["EnhancedPolicy"]
-    },
-    "effect": {
-      "type": "String",
-      "metadata": {
-        "displayName": "Effect",
-        "description": "Enable or disable the execution of the policy"
-      },
-      "allowedValues": [
-        "auditIfNotExists",
-        "AuditIfNotExists",
-        "deployIfNotExists",
-        "DeployIfNotExists",
-        "disabled",
-        "Disabled"
-      ],
-      "defaultValue": "DeployIfNotExists"
-    }
-  }
+    }  }
 }

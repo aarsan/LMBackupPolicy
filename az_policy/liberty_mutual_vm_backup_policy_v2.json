@@ -1,0 +1,190 @@
+{
+  "mode": "Indexed",
+  "parameters": {
+    "vaultResourceGroupName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Resource Group Name",
+        "description": "Resource Group containing the Recovery Services Vaults"
+      },
+      "defaultValue": "LibertyMutualDemo"
+    },
+    "dailyVaultName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Daily Vault Name",
+        "description": "Name of the Recovery Services Vault for daily backups"
+      },
+      "defaultValue": "lm-daily"
+    },
+    "hourlyVaultName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Hourly Vault Name",
+        "description": "Name of the Recovery Services Vault for hourly backups"
+      },
+      "defaultValue": "lm-hourly"
+    },
+    "dailyBackupPolicyName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Daily Backup Policy Name",
+        "description": "Name of the backup policy to apply for daily backups"
+      },
+      "defaultValue": "EnhancedPolicy-Daily"
+    },
+    "hourlyBackupPolicyName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Hourly Backup Policy Name",
+        "description": "Name of the backup policy to apply for hourly backups"
+      },
+      "defaultValue": "EnhancedPolicy-Hourly"
+    },
+    "backupTagName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Backup Tag Name",
+        "description": "Name of the tag to use for determining backup schedule"
+      },
+      "defaultValue": "backup-policy"
+    },
+    "dailyTagValue": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Daily Backup Tag Value",
+        "description": "Value of the backup tag for daily backups"
+      },
+      "defaultValue": "daily"
+    },
+    "hourlyTagValue": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Hourly Backup Tag Value",
+        "description": "Value of the backup tag for hourly backups"
+      },
+      "defaultValue": "hourly"
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.managedDisk",
+          "exists": "true"
+        },
+        {
+          "field": "[concat('tags[', parameters('backupTagName'), ']')]",
+          "exists": "true"
+        },
+        {
+          "anyOf": [
+            {
+              "field": "[concat('tags[', parameters('backupTagName'), ']')]",
+              "equals": "[parameters('dailyTagValue')]"
+            },
+            {
+              "field": "[concat('tags[', parameters('backupTagName'), ']')]",
+              "equals": "[parameters('hourlyTagValue')]"
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "effect": "deployIfNotExists",
+      "details": {
+        "type": "Microsoft.RecoveryServices/backupprotecteditems",
+        "roleDefinitionIds": [
+          "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+          "/providers/Microsoft.Authorization/roleDefinitions/5e467623-bb1f-42f4-a55d-6e525e11384b"
+        ],
+        "deployment": {
+          "properties": {
+            "mode": "incremental",
+            "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "vaultResourceGroupName": {
+                  "type": "string"
+                },
+                "dailyVaultName": {
+                  "type": "string"
+                },
+                "hourlyVaultName": {
+                  "type": "string"
+                },
+                "dailyBackupPolicyName": {
+                  "type": "string"
+                },
+                "hourlyBackupPolicyName": {
+                  "type": "string"
+                },
+                "vmResourceGroup": {
+                  "type": "string"
+                },
+                "vmName": {
+                  "type": "string"
+                },
+                "backupTagValue": {
+                  "type": "string"
+                }
+              },
+              "variables": {
+                "vaultName": "[if(equals(parameters('backupTagValue'), 'daily'), parameters('dailyVaultName'), parameters('hourlyVaultName'))]",
+                "backupPolicyName": "[if(equals(parameters('backupTagValue'), 'daily'), parameters('dailyBackupPolicyName'), parameters('hourlyBackupPolicyName'))]",
+                "backupFabric": "Azure",
+                "v2VmContainer": "[concat('iaasvmcontainer;iaasvmcontainerv2;', parameters('vmResourceGroup'), ';', parameters('vmName'))]",
+                "v2Vm": "[concat('vm;iaasvmcontainerv2;', parameters('vmResourceGroup'), ';', parameters('vmName'))]"
+              },
+              "resources": [
+                {
+                  "name": "[concat(variables('vaultName'), '/', variables('backupFabric'), '/', variables('v2VmContainer'), '/', variables('v2Vm'))]",
+                  "apiVersion": "2023-02-01",
+                  "location": "[resourceGroup().location]",
+                  "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+                  "properties": {
+                    "protectedItemType": "Microsoft.Compute/virtualMachines",
+                    "policyId": "[resourceId(parameters('vaultResourceGroupName'), 'Microsoft.RecoveryServices/vaults/backupPolicies', variables('vaultName'), variables('backupPolicyName'))]",
+                    "sourceResourceId": "[resourceId(parameters('vmResourceGroup'), 'Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                  }
+                }
+              ]
+            },
+            "parameters": {
+              "vaultResourceGroupName": {
+                "value": "[parameters('vaultResourceGroupName')]"
+              },
+              "dailyVaultName": {
+                "value": "[parameters('dailyVaultName')]"
+              },
+              "hourlyVaultName": {
+                "value": "[parameters('hourlyVaultName')]"
+              },
+              "dailyBackupPolicyName": {
+                "value": "[parameters('dailyBackupPolicyName')]"
+              },
+              "hourlyBackupPolicyName": {
+                "value": "[parameters('hourlyBackupPolicyName')]"
+              },
+              "vmResourceGroup": {
+                "value": "[resourceGroup().name]"
+              },
+              "vmName": {
+                "value": "[field('name')]"
+              },
+              "backupTagValue": {
+                "value": "[field(concat('tags[', parameters('backupTagName'), ']'))]"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

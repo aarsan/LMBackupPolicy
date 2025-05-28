@@ -1,0 +1,12 @@
+In Azure I have a resource group called 'LibertyMutualDemo'. In that RG I have two Recovery Services Vaults:
+
+- lm-hourly
+- lm-daily
+
+The backup policy is called 'EnhancedPolicy'
+
+When I deploy a Virtual Machine into that Resource Group, It will have a tag with the key, 'backup-policy', 
+the value will either be 'daily' or 'hourly'. For the VMs tagged with 'daily', I want them to be assigned to
+the 'EnhancedPolicy' policy on lm-daily. The VMs tagged with hourly will be assigned to 'lm-hourly' and the
+'EnhancedPolicy' policy as well. 
+
