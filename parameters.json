@@ -2,12 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "2.0.0.0",
     "parameters": {
-        "vaultSubscriptionID": {
-            "value": "edfeee88-1f3d-413a-b4d6-884d1f694077"
-        },
-        "vaultResourceGroup": {
-            "value": "LibertyMutualDemo"
-        },
         "vaultName": {
             "value": "lm-vault"
         },
@@ -15,7 +9,7 @@
             "value": "AzureIaasVM"
         },
         "policyName": {
-            "value": "ComplexBackup"
+            "value": "WebServerPolicyv3"
         },
         "policyType": {
             "value": "V2"
