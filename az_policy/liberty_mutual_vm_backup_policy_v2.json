@@ -136,6 +136,7 @@
                 }
               },
               "variables": {
+
                 "vaultName": "[if(equals(parameters('backupTagValue'), 'daily'), parameters('dailyVaultName'), parameters('hourlyVaultName'))]",
                 "backupPolicyName": "[if(equals(parameters('backupTagValue'), 'daily'), parameters('dailyBackupPolicyName'), parameters('hourlyBackupPolicyName'))]",
                 "backupFabric": "Azure",

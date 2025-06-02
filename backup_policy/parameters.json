@@ -1,0 +1,64 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "2.0.0.0",
+    "parameters": {
+        "vaultName": {
+            "value": "lm-vault"
+        },
+        "backupManagementType": {
+            "value": "AzureIaasVM"
+        },
+        "policyName": {
+            "value": "WebServerPolicyv3"
+        },
+        "policyType": {
+            "value": "V2"
+        },
+        "instantRpRetentionRangeInDays": {
+            "value": 7
+        },
+        "schedule": {
+            "value": {
+                "schedulePolicyType": "SimpleSchedulePolicyV2",
+                "scheduleRunFrequency": "Hourly",
+                "hourlySchedule": {
+                    "interval": 4,
+                    "scheduleWindowStartTime": "2025-05-12T08:00:00.000Z",
+                    "scheduleWindowDuration": 20
+                },
+                "dailySchedule": null,
+                "weeklySchedule": null
+            }
+        },
+        "timeZone": {
+            "value": "UTC"
+        },
+        "retention": {
+            "value": {
+                "retentionPolicyType": "LongTermRetentionPolicy",
+                "dailySchedule": {
+                    "retentionTimes": [
+                        "2025-05-12T08:00:00.000Z"
+                    ],
+                    "retentionDuration": {
+                        "count": 180,
+                        "durationType": "Days"
+                    }
+                },
+                "weeklySchedule": null,
+                "monthlySchedule": null,
+                "yearlySchedule": null
+            }
+        },
+        "instantRPDetails": {
+            "value": {}
+        },
+        "tieringPolicy": {
+            "value": {
+                "ArchivedRP": {
+                    "tieringMode": "DoNotTier"
+                }
+            }
+        }
+    }
+}
