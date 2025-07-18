@@ -117,7 +117,7 @@ if (-not $skipDisableProtection) {
         
         # Disable protection but retain backup data
         Write-Host "Disabling protection while retaining backup data..." -ForegroundColor Yellow
-        Disable-AzRecoveryServicesBackupProtection -Item $sourceBackupItem -RetainRecoveryPoints -Force
+        Disable-AzRecoveryServicesBackupProtection -Item $sourceBackupItem -Force
         
         Write-Host "Backup protection disabled successfully in source vault." -ForegroundColor Green
         
@@ -179,9 +179,9 @@ try {
 Write-Host "`n5. Verifying the backup transfer..." -ForegroundColor Green
 
 Set-AzRecoveryServicesVaultContext -Vault $targetVault
-$newContainer = Get-AzRecoveryServicesBackupContainer -ContainerType AzureVM -Status Registered -FriendlyName $VmName -ErrorAction SilentlyContinue
+$newContainer = Get-AzRecoveryServicesBackupContainer -ContainerType AzureVM -FriendlyName $VmName -ErrorAction SilentlyContinue
 
-if ($newContainer) {
+if ($newContainer.Status -eq "Registered") {
     $newBackupItem = Get-AzRecoveryServicesBackupItem -Container $newContainer -WorkloadType AzureVM -ErrorAction SilentlyContinue
     if ($newBackupItem) {
         Write-Host "✓ SUCCESS: VM backup successfully transferred!" -ForegroundColor Green
