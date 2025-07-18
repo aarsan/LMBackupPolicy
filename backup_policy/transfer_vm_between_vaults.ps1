@@ -71,15 +71,15 @@ if (-not $targetVault) {
 Write-Host "`n1. Checking current backup status in source vault..." -ForegroundColor Green
 Set-AzRecoveryServicesVaultContext -Vault $sourceVault
 
-$sourceContainer = Get-AzRecoveryServicesBackupContainer -ContainerType AzureVM -Status Registered -FriendlyName $VmName -ErrorAction SilentlyContinue
-if (-not $sourceContainer) {
+$sourceContainer = Get-AzRecoveryServicesBackupContainer -ContainerType AzureVM -FriendlyName $VmName -ErrorAction SilentlyContinue
+if (-not $sourceContainer.Status -eq "Registered") {
     Write-Warning "VM '$VmName' is not registered in source vault '$SourceVaultName'"
     Write-Host "Checking if it's already in the target vault..."
     
     # Check target vault
     Set-AzRecoveryServicesVaultContext -Vault $targetVault
-    $targetContainer = Get-AzRecoveryServicesBackupContainer -ContainerType AzureVM -Status Registered -FriendlyName $VmName -ErrorAction SilentlyContinue
-    if ($targetContainer) {
+    $targetContainer = Get-AzRecoveryServicesBackupContainer -ContainerType AzureVM -FriendlyName $VmName -ErrorAction SilentlyContinue
+    if ($targetContainer.Status -eq "Registered") {
         $targetBackupItem = Get-AzRecoveryServicesBackupItem -Container $targetContainer -WorkloadType AzureVM -ErrorAction SilentlyContinue
         if ($targetBackupItem) {
             Write-Host "VM is already protected in target vault '$TargetVaultName' with policy '$($targetBackupItem.ProtectionPolicyName)'" -ForegroundColor Green
